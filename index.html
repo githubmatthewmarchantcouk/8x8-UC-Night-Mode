@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Toggle Override</title>
+
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f6f7fb;
+      color: #0f172a;
+      padding: 24px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 32px;
+    }
+
+    p.topnote {
+      margin: 0 0 24px;
+      color: #475569;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(260px, 1fr));
+      gap: 24px;
+    }
+
+    .card {
+      background: white;
+      border: 1px solid #dbe1ea;
+      border-radius: 22px;
+      box-shadow: 0 2px 10px rgba(15, 23, 42, 0.08);
+      padding: 28px;
+      min-height: 560px;
+    }
+
+    .card h2 {
+      margin: 0 0 14px;
+      font-size: 32px;
+    }
+
+    .card p {
+      margin: 0 0 24px;
+      font-size: 18px;
+      line-height: 1.45;
+      color: #334155;
+    }
+
+    button {
+      appearance: none;
+      border: 0;
+      background: #0b1736;
+      color: white;
+      font-size: 18px;
+      font-weight: 700;
+      padding: 16px 26px;
+      border-radius: 999px;
+      cursor: pointer;
+      margin-bottom: 24px;
+    }
+
+    button:hover {
+      opacity: 0.92;
+    }
+
+    button:disabled {
+      opacity: 0.7;
+      cursor: wait;
+    }
+
+    .framewrap {
+      border: 1px solid #dbe1ea;
+      background: #f8fafc;
+      border-radius: 22px;
+      overflow: hidden;
+      height: 330px;
+    }
+
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: 0;
+      background: white;
+    }
+
+    .hint {
+      margin-top: 18px;
+      font-size: 14px;
+      color: #64748b;
+    }
+
+    .status-panel {
+      border: 1px solid #dbe1ea;
+      background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+      border-radius: 22px;
+      padding: 0;
+      min-height: 330px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .status-strip {
+      padding: 14px 22px;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: white;
+    }
+
+    .status-strip.open {
+      background: linear-gradient(90deg, #15803d 0%, #16a34a 100%);
+    }
+
+    .status-strip.closed {
+      background: linear-gradient(90deg, #b91c1c 0%, #dc2626 100%);
+    }
+
+    .status-strip.unknown {
+      background: linear-gradient(90deg, #475569 0%, #64748b 100%);
+    }
+
+    .status-content {
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      flex: 1;
+    }
+
+    .status-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .status-label {
+      font-size: 14px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: #64748b;
+    }
+
+    .status-main {
+      font-size: 34px;
+      font-weight: 700;
+      line-height: 1.1;
+    }
+
+    .badge {
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 14px;
+      max-width: 100%;
+    }
+
+    .badge-open {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .badge-closed {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .badge-neutral {
+      background: #e2e8f0;
+      color: #334155;
+    }
+
+    .status-reason {
+      font-size: 16px;
+      color: #475569;
+    }
+
+    .status-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      padding: 12px 14px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+    }
+
+    .status-updated {
+      font-size: 14px;
+      color: #475569;
+    }
+
+    .status-refreshing {
+      font-size: 13px;
+      color: #64748b;
+    }
+
+    .status-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .metric {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 14px;
+    }
+
+    .metric-label {
+      font-size: 12px;
+      color: #64748b;
+      font-weight: 700;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .metric-value {
+      font-size: 20px;
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    .retry-wrap {
+      display: none;
+      margin-top: 4px;
+    }
+
+    .retry-wrap.visible {
+      display: block;
+    }
+
+    .retry-button {
+      margin: 0;
+      background: #b91c1c;
+      padding: 12px 18px;
+      font-size: 15px;
+    }
+
+    details {
+      margin-top: auto;
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: 700;
+      color: #334155;
+    }
+
+    pre {
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 12px;
+      border-radius: 10px;
+      font-size: 12px;
+      overflow: auto;
+    }
+
+    @media (max-width: 980px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .card {
+        min-height: auto;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .status-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .status-main {
+        font-size: 28px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Toggle Override Controls</h1>
+  <p class="topnote">
+    Live status is fetched dynamically from the webhook. Controls remain available below.
+  </p>
+
+  <div class="grid">
+    <div class="card">
+      <h2>Current Status</h2>
+      <p>Live operational status based on the webhook response.</p>
+
+      <div class="status-panel">
+        <div class="status-strip unknown" id="statusStrip">
+          Status unavailable
+        </div>
+
+        <div class="status-content">
+          <div class="status-header">
+            <div>
+              <div class="status-label">System State</div>
+              <div class="status-main" id="systemState">Loading...</div>
+            </div>
+            <span class="badge badge-neutral" id="reasonBadge">Loading</span>
+          </div>
+
+          <div class="status-reason" id="statusReason">
+            Fetching latest status...
+          </div>
+
+          <div class="status-meta">
+            <div class="status-updated" id="lastUpdated">
+              Last updated: Waiting for first response
+            </div>
+            <div class="status-refreshing" id="refreshInfo">
+              Auto-refresh every 30 seconds
+            </div>
+          </div>
+
+          <div class="status-grid">
+            <div class="metric">
+              <div class="metric-label">Override</div>
+              <div class="metric-value" id="overrideStatus">-</div>
+            </div>
+
+            <div class="metric">
+              <div class="metric-label">Business Hours</div>
+              <div class="metric-value" id="businessHours">-</div>
+            </div>
+
+            <div class="metric">
+              <div class="metric-label">Bank Holiday</div>
+              <div class="metric-value" id="bankHoliday">-</div>
+            </div>
+
+            <div class="metric">
+              <div class="metric-label">Mode</div>
+              <div class="metric-value" id="mode">-</div>
+            </div>
+          </div>
+
+          <div class="retry-wrap" id="retryWrap">
+            <button class="retry-button" id="retryButton" onclick="loadStatus(true)">
+              Retry status fetch
+            </button>
+          </div>
+
+          <details>
+            <summary>View raw response</summary>
+            <pre id="rawJson">Loading...</pre>
+          </details>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Box 2</h2>
+      <p>Press Open to call the webhook with action=open.</p>
+      <button onclick="document.getElementById('frame2').src='https://hooks.ai.8x8.vc/0012J00002KTuORQA1/toggle-override?action=open'">
+        Open
+      </button>
+      <div class="framewrap">
+        <iframe id="frame2"></iframe>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Box 3</h2>
+      <p>Press the button to call the webhook with action=close.</p>
+      <button onclick="document.getElementById('frame3').src='https://hooks.ai.8x8.vc/0012J00002KTuORQA1/toggle-override?action=close'">
+        Run
+      </button>
+      <div class="framewrap">
+        <iframe id="frame3"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <p class="hint">
+    If status fails to load, the webhook is likely blocking CORS. In that case, a proxy is required.
+  </p>
+
+  <script>
+    const STATUS_URL = "https://hooks.ai.8x8.vc/0012J00002KTuORQA1/toggle-override";
+    const REFRESH_MS = 30000;
+    let refreshTimer = null;
+
+    function titleCase(value) {
+      if (!value || typeof value !== "string") return "-";
+      return value.charAt(0).toUpperCase() + value.slice(1);
+    }
+
+    function formatTimestamp(date) {
+      return date.toLocaleString("en-GB", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit"
+      });
+    }
+
+    function setStrip(state) {
+      const strip = document.getElementById("statusStrip");
+
+      if (state === "open") {
+        strip.className = "status-strip open";
+        strip.textContent = "System open";
+      } else if (state === "closed" || state === "close") {
+        strip.className = "status-strip closed";
+        strip.textContent = "System closed";
+      } else {
+        strip.className = "status-strip unknown";
+        strip.textContent = "Status unavailable";
+      }
+    }
+
+    function showRetry(show) {
+      const wrap = document.getElementById("retryWrap");
+      if (show) {
+        wrap.classList.add("visible");
+      } else {
+        wrap.classList.remove("visible");
+      }
+    }
+
+    function setRefreshingMessage(text) {
+      document.getElementById("refreshInfo").textContent = text;
+    }
+
+    async function loadStatus(manualRetry = false) {
+      const retryButton = document.getElementById("retryButton");
+      if (manualRetry && retryButton) {
+        retryButton.disabled = true;
+        retryButton.textContent = "Retrying...";
+      }
+
+      setRefreshingMessage("Refreshing status...");
+
+      try {
+        const res = await fetch(STATUS_URL, { cache: "no-store" });
+        if (!res.ok) {
+          throw new Error("HTTP " + res.status + " " + res.statusText);
+        }
+
+        const data = await res.json();
+        const systemValue = String(data.system || "").toLowerCase();
+        const reasonText = data.reason || "No reason provided";
+        const overrideActive = Boolean(data.override && data.override.active);
+        const inBusinessHours = Boolean(data.schedule && data.schedule.inBusinessHours);
+        const isBankHoliday = Boolean(data.schedule && data.schedule.isBankHoliday);
+
+        document.getElementById("systemState").textContent =
+          titleCase(systemValue || "unknown");
+
+        const badge = document.getElementById("reasonBadge");
+        badge.textContent = reasonText;
+
+        if (systemValue === "open") {
+          badge.className = "badge badge-open";
+        } else if (systemValue === "closed" || systemValue === "close") {
+          badge.className = "badge badge-closed";
+        } else {
+          badge.className = "badge badge-neutral";
+        }
+
+        document.getElementById("statusReason").textContent =
+          "The system is currently operating: " + reasonText + ".";
+
+        document.getElementById("overrideStatus").textContent =
+          overrideActive ? "Active" : "Inactive";
+
+        document.getElementById("businessHours").textContent =
+          inBusinessHours ? "Yes" : "No";
+
+        document.getElementById("bankHoliday").textContent =
+          isBankHoliday ? "Yes" : "No";
+
+        document.getElementById("mode").textContent =
+          overrideActive ? "Override Active" : "Standard Schedule";
+
+        document.getElementById("rawJson").textContent =
+          JSON.stringify(data, null, 2);
+
+        document.getElementById("lastUpdated").textContent =
+          "Last updated: " + formatTimestamp(new Date());
+
+        setStrip(systemValue);
+        showRetry(false);
+        setRefreshingMessage("Auto-refresh every 30 seconds");
+      } catch (err) {
+        document.getElementById("systemState").textContent = "Unavailable";
+        document.getElementById("reasonBadge").textContent = "Fetch failed";
+        document.getElementById("reasonBadge").className = "badge badge-neutral";
+        document.getElementById("statusReason").textContent =
+          "Unable to fetch the latest status. This is commonly caused by CORS restrictions or a temporary endpoint issue.";
+
+        document.getElementById("overrideStatus").textContent = "-";
+        document.getElementById("businessHours").textContent = "-";
+        document.getElementById("bankHoliday").textContent = "-";
+        document.getElementById("mode").textContent = "-";
+
+        document.getElementById("rawJson").textContent =
+          String(err && err.message ? err.message : err);
+
+        document.getElementById("lastUpdated").textContent =
+          "Last updated: Fetch unsuccessful";
+
+        setStrip("unknown");
+        showRetry(true);
+        setRefreshingMessage("Auto-refresh every 30 seconds");
+      } finally {
+        if (manualRetry && retryButton) {
+          retryButton.disabled = false;
+          retryButton.textContent = "Retry status fetch";
+        }
+      }
+    }
+
+    loadStatus();
+    refreshTimer = setInterval(loadStatus, REFRESH_MS);
+  </script>
+</body>
+</html>
