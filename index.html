@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Toggle Override</title>
+  <title>AA Toggle Override</title>
 
   <style>
     * { box-sizing: border-box; }
@@ -347,13 +347,13 @@
 <body>
   <h1>Toggle Override Controls</h1>
   <p class="topnote">
-    Live status is fetched dynamically from the webhook. Controls remain available below.
+    Live status is fetched dynamically.
   </p>
 
   <div class="grid">
     <div class="card">
       <h2>Current Status</h2>
-      <p>Live operational status based on the webhook response.</p>
+      <p>Live operational status.</p>
 
       <div class="status-panel">
         <div class="status-strip unknown" id="statusStrip">
@@ -426,7 +426,7 @@
 
     <div class="card">
       <h2>Open</h2>
-      <p>Use this control to submit an open request to the webhook endpoint.</p>
+      <p>Use this control to submit an open request.</p>
 
       <button
         class="button-open"
@@ -472,7 +472,7 @@
 
     <div class="card">
       <h2>Closed</h2>
-      <p>Use this control to submit a close request to the webhook endpoint.</p>
+      <p>Use this control to submit a close request.</p>
 
       <button
         class="button-closed"
@@ -517,9 +517,7 @@
     </div>
   </div>
 
-  <p class="hint">
-    If status fails to load, the webhook is likely blocking CORS. In that case, a proxy is required.
-  </p>
+
 
   <script>
     const STATUS_URL = "https://hooks.ai.8x8.vc/0012J00002KTuORQA1/toggle-override";
